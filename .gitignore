@@ -1,0 +1,18 @@
+# Local configuration and credentials
+.codex/
+.agents/
+.vercel/
+.env
+.env.*
+!.env.example
+
+# Generated files and temporary work
+dist/
+node_modules/
+.local/
+*.log
+.DS_Store
+._*
+
+# Historical artwork stays on this machine
+assets/posters/_placeholder-svg/

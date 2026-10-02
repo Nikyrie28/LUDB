@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LUDB · 我看过的电影</title>
+<meta name="description" content="LUDB，一个私人电影数据库：排行榜、海报墙与观影记录。">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="assets/logo-display.png" type="image/png">
+<link rel="apple-touch-icon" href="assets/logo-display.png">
+<link rel="stylesheet" href="assets/css/lmdb.css">
+</head>
+<body>
+
+<a class="skip-link" href="#main">跳到主要内容</a>
+
+<!-- ══ 顶栏（两个视图共用，详情页也保持可达） ══ -->
+<header class="app-bar">
+  <div class="app-bar__inner">
+    <a class="brand" href="#" aria-label="LUDB 首页">
+      <img class="brand__logo" src="assets/logo.png" srcset="assets/logo-display.png 228w" sizes="76px" alt="LMDB" width="1768" height="890">
+      <span class="brand__sub">我的电影收藏</span>
+    </a>
+
+    <div class="search" role="search">
+      <label class="search__field">
+        <span class="search__label">搜索</span>
+        <input id="searchInput" type="search" placeholder="片名、导演、类型" autocomplete="off" aria-label="搜索电影">
+      </label>
+      <button id="searchClear" class="search__clear" type="button" hidden>清除</button>
+    </div>
+
+    <nav class="app-bar__nav" aria-label="主导航">
+      <a href="#chart" data-navlink="chart">排行榜</a>
+      <a href="#wall" data-navlink="wall">海报墙</a>
+      <a href="#about" data-navlink="about">关于</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1">
+
+  <!-- ════════════════════════════════════════════════════════════
+       视图一：首页
+       ════════════════════════════════════════════════════════════ -->
+  <div class="view view--home is-active" id="viewHome">
+
+    <!-- 首屏精选 -->
+    <section class="hero" id="hero" aria-label="收藏影片"></section>
+
+    <!-- 排行榜 -->
+    <section class="block" id="chart">
+      <div class="block__head">
+        <div class="block__titles">
+          <h2 class="block__title">排行榜</h2>
+          <p class="block__desc" id="chartNote">只有真实评分参与排名，待评影片仍保留在收藏中。</p>
+        </div>
+        <div class="block__tools">
+          <div class="segmented" id="chartSort" role="group" aria-label="排行榜排序方式">
+            <button class="segmented__btn is-active" data-sort="imdb" aria-pressed="true">IMDb</button>
+            <button class="segmented__btn" data-sort="douban" aria-pressed="false">豆瓣</button>
+            <button class="segmented__btn" data-sort="score" aria-pressed="false">个人评分</button>
+            <button class="segmented__btn" data-sort="year" aria-pressed="false">按年份</button>
+          </div>
+        </div>
+      </div>
+      <ol class="chart" id="chartList"></ol>
+      <p class="block__desc ratings-note" id="ratingsNote"></p>
+    </section>
+
+    <!-- 海报墙 -->
+    <section class="block" id="wall">
+      <div class="block__head">
+        <div class="block__titles">
+          <h2 class="block__title">海报墙</h2>
+          <p class="block__desc" id="wallCount"></p>
+        </div>
+        <div class="block__tools">
+          <label class="wall-sort">排序<select id="wallSort" aria-label="海报墙排序"><option value="imdb">IMDb</option><option value="douban">豆瓣</option><option value="score">个人评分</option><option value="year">年份</option></select></label>
+          <div class="chips" id="genreChips" role="group" aria-label="按类型筛选"></div>
+        </div>
+      </div>
+      <div class="wall" id="wallGrid"></div>
+      <p class="empty" id="wallEmpty" hidden><strong>没有找到这部电影</strong><span>换个关键词，或选择「全部」类型再试试</span></p>
+    </section>
+
+    <!-- 关于 -->
+    <section class="block block--narrow" id="about">
+      <div class="block__head">
+        <h2 class="block__title">关于 LUDB</h2>
+      </div>
+      <div class="about">
+        <p class="about__lead">看过的电影，都记在这里。</p>
+        <dl class="about__meta">
+          <div><dt>站点</dt><dd>LUDB<span class="dot">·</span>MY MOVIE DATABASE</dd></div>
+          <div><dt>收藏</dt><dd id="aboutCount">0 部</dd></div>
+          <div><dt>最近更新</dt><dd id="aboutUpdated">未记录</dd></div>
+
+        </dl>
+        <p class="about__note">记录观影，保留感受。IMDb 与豆瓣评分供参考，个人评分留给自己。</p>
+        <p class="about__note">海报来源于豆瓣与岩井俊二官方影展，版权归各自权利人。</p>
+      </div>
+    </section>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════
+       视图二：影片详情（全屏二级页面，由 #/film/<id> 路由驱动）
+       ════════════════════════════════════════════════════════════ -->
+  <div class="view view--detail" id="viewDetail" hidden></div>
+
+</main>
+
+<footer class="site-foot">
+  <div class="site-foot__inner">
+    <span class="site-foot__brand">LUDB</span>
+    <span class="site-foot__copy">私人观影记录 · <span id="footYear"></span></span>
+    <a class="site-foot__top" href="#">回到顶部</a>
+  </div>
+</footer>
+
+<script src="data.js"></script>
+<script src="assets/js/lmdb.js"></script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+.git/
+.codex/
+.agents/
+.vercel/
+.env
+.env.*
+.local/
+dist/
+node_modules/
+*.log
+.DS_Store
+._*
+assets/posters/_placeholder-svg/
