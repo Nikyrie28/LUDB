@@ -262,7 +262,7 @@ window.LMDB = {
       review: "",
     },
     // 岩井俊二三部：个人评分、日期与短评待补。
-    // 三张海报均来自 https://iwaifilm30th.com/ 的对应影片页（30 周年影展版）。
+    // 海报改为单片发行版，版本与原图 URL 见 ASSET-SOURCES.md；旧周年影展图保留但不再引用。
     // 资料：https://filmmovement.com/press/film/love-letter
     {
       id: "love-letter",
@@ -282,9 +282,9 @@ window.LMDB = {
       imdbUrl: "https://www.imdb.com/title/tt0113703/",
       doubanUrl: "https://movie.douban.com/subject/1292220/",
       markedAt: null,
-      poster: "assets/posters/love-letter.jpg",
-      posterPreview: "assets/posters/love-letter-display.jpg",
-      posterThumb: "assets/posters/love-letter-thumb.jpg",
+      poster: "assets/posters/love-letter-cn-2021.jpg",
+      posterPreview: "assets/posters/love-letter-cn-2021-display.jpg",
+      posterThumb: "assets/posters/love-letter-cn-2021-thumb.jpg",
       tagline: "一封信，寄回了未曾说出口的青春。",
       summary:
         "未婚夫藤井树因山难去世后，渡边博子向他少年时住过的小樽地址寄出一封信，意外收到了另一位同名女子的回信。两人的书信往来，让一段藏在校园与旧书里的少年心事逐渐浮现。",
@@ -309,9 +309,9 @@ window.LMDB = {
       imdbUrl: "https://www.imdb.com/title/tt0407851/",
       doubanUrl: "https://movie.douban.com/subject/1308820/",
       markedAt: null,
-      poster: "assets/posters/hana-and-alice.jpg",
-      posterPreview: "assets/posters/hana-and-alice-display.jpg",
-      posterThumb: "assets/posters/hana-and-alice-thumb.jpg",
+      poster: "assets/posters/hana-and-alice-jp.jpg",
+      posterPreview: "assets/posters/hana-and-alice-jp-display.jpg",
+      posterThumb: "assets/posters/hana-and-alice-jp-thumb.jpg",
       tagline: "谎言绕了一圈，友情还在。",
       summary:
         "从小一起长大的花与爱丽丝升入高中。花暗恋的学长宫本意外撞到头，她趁机谎称两人早已交往；为了圆谎，爱丽丝也被拉进这场假装失忆的恋爱，三个人的关系渐渐变得微妙。",
@@ -337,9 +337,9 @@ window.LMDB = {
       imdbUrl: "https://www.imdb.com/title/tt0146271/",
       doubanUrl: "https://movie.douban.com/subject/1292371/",
       markedAt: null,
-      poster: "assets/posters/april-story.jpg",
-      posterPreview: "assets/posters/april-story-display.jpg",
-      posterThumb: "assets/posters/april-story-thumb.jpg",
+      poster: "assets/posters/april-story-jp.jpg",
+      posterPreview: "assets/posters/april-story-jp-display.jpg",
+      posterThumb: "assets/posters/april-story-jp-thumb.jpg",
       tagline: "为了一个人，来到一座城。",
       summary:
         "四月，北海道女孩榆野卯月独自来到东京，开始大学生活。在搬家、结识邻居与同学的日常里，她反复走进一间书店；她选择这所大学的秘密，也藏在店里那位曾让她心动的学长身上。",

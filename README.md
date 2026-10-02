@@ -107,7 +107,9 @@ BASE_URL=https://ludb.vercel.app/ node tools/smoke-test.mjs
 
 ### 换海报
 
-海报按 **2:3 竖版容器**展示，当前有 12 张真实海报，来源包括豆瓣与岩井俊二官方影展；原图比例可能略有不同。
+海报按 **2:3 竖版容器**展示，当前使用 12 张海报，收录自豆瓣与映画.com；原图比例可能略有不同。
+
+选图优先单片官方正式发行／院线主海报，也可用正式重映版；默认避开影展合集、周年统一模板、影碟封面和同人图。下载工具只负责匹配影片与校验图片，豆瓣默认封面也需人工核对版本。版本及原图入口记在 ASSET-SOURCES.md。
 
 1. 把自己的图用新文件名放进 `assets/posters/`，保留原图
 2. 把该片的 `poster` 改成对应路径，例如 `assets/posters/inception.jpg`
@@ -217,4 +219,4 @@ Logo 使用用户提供的原始 PNG（图中文字为 LMDB），站点既定显
 
 海报原图由 `poster` 引用；可选 `posterPreview`（512px 宽）和 `posterThumb`（256px 宽）通过 `srcset` 提供展示副本，浏览器按尺寸选择。换海报时需同时更换或删除这两个可选字段，否则仍会显示旧副本。校验工具检查三个字段的路径与文件。原图均保留。
 
-海报来源包括豆瓣影片条目及岩井俊二官方影展，版权属于各自权利人；仓库公开不代表第三方素材获得开放许可，署名也不等于取得授权。图片记录见 [ASSET-SOURCES.md](ASSET-SOURCES.md)，评分出处与证据限制见 [RATINGS-SOURCES.md](RATINGS-SOURCES.md)。
+当前海报收录自豆瓣影片条目及映画.com，版权属于各自权利人；仓库公开不代表第三方素材获得开放许可，署名也不等于取得授权。旧岩井俊二周年影展海报保留在仓库，但不再被页面或发布包引用。图片记录见 [ASSET-SOURCES.md](ASSET-SOURCES.md)，评分出处与证据限制见 [RATINGS-SOURCES.md](RATINGS-SOURCES.md)。
