@@ -8,6 +8,7 @@
 
 - **位置**：本仓库根目录；本机文件夹名保留 LMDB，与摄影作品集是独立项目
 - **预览**：`http://localhost:8765`
+- **线上**：https://ludb.vercel.app/；GitHub 公开仓库：https://github.com/Nikyrie28/LUDB
 - **发布方向**：用户于 2026-10-02 要求将现有网站上传 GitHub 公开仓库并部署到 Vercel，替代此前仅本地使用的范围；保留当前海报，注明来源与权属。此发布要求不代表已取得第三方素材授权，记录见 ASSET-SOURCES.md
 - **站名变更史**：LMDB → 炉MDB → LUDB（用户定名 LUDB）
 
@@ -113,6 +114,7 @@ node tools/serve.mjs
 - hash 路由不需要 SPA rewrite；不要把所有未知路径重写到首页掩盖资源错误
 - 上线后使用 `BASE_URL=https://实际域名/ node tools/smoke-test.mjs`，并实际查看桌面与 390px 手机画面
 - GitHub 仓库可见性、Vercel 构建成功和线上页面可用分别验证，不把本地测试作为线上验收
+- 2026-10-02 首次上线：线上冒烟 51/51、本机服务回归 24/24；43 个线上文件逐字节匹配，维护文件返回 404；后续修改按影响范围复核
 
 ## 当前数据状态（2026-10-02 核对）
 

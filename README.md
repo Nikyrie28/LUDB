@@ -1,5 +1,7 @@
 # LUDB
 
+[在线访问](https://ludb.vercel.app/) · [GitHub 公开仓库](https://github.com/Nikyrie28/LUDB)
+
 个人电影收藏与观影记录站。包含排行榜、海报墙、搜索、筛选与影片详情，使用黑白灰和黄色重点的 Helvetica 设计。
 
 原生 HTML / CSS / JavaScript，零运行时依赖，无数据库服务。当前收录 12 部影片，个人评分均为「待评」；IMDb／豆瓣分数为手动录入的历史快照。
@@ -37,10 +39,12 @@ node tools/serve.mjs
 
 ```bash
 node tools/build.mjs
-BASE_URL=https://你的域名/ node tools/smoke-test.mjs
+BASE_URL=https://ludb.vercel.app/ node tools/smoke-test.mjs
 ```
 
 `.gitignore` 排除本机配置、凭据、构建输出和历史归档；公开仓库中的 `data.js` 本身是公开数据，请勿写入私人信息。
+
+首次上线验收（2026-10-02）：数据校验与本机服务回归 24/24、线上浏览器冒烟 51/51 通过；43 个线上文件与本地源文件逐字节一致。桌面 1440px 与手机 390px 画面已查看；维护文件和旧素材归档返回 404。这是本次部署验证，不代表后续版本或所有访问地区的持续可用性。
 
 ## 页面结构
 
