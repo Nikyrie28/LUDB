@@ -20,6 +20,7 @@ before(async () => {
   scratch = await mkdtemp("/tmp/ludb-backend-test-");
   root = join(scratch, "site");
   await mkdir(join(root, "assets/posters"), { recursive: true });
+  await mkdir(join(root, "assets/backdrops"), { recursive: true });
   await mkdir(join(root, "assets/css"), { recursive: true });
   await mkdir(join(root, "assets/js"), { recursive: true });
   fixture = { meta: clone(current.meta), movies: [clone(current.movies[0])] };
@@ -33,6 +34,7 @@ before(async () => {
   await writeFile(join(root, fixture.movies[0].poster), jpeg);
   if (fixture.movies[0].posterPreview) await writeFile(join(root, fixture.movies[0].posterPreview), jpeg);
   if (fixture.movies[0].posterThumb) await writeFile(join(root, fixture.movies[0].posterThumb), jpeg);
+  if (fixture.movies[0].backdrop) await writeFile(join(root, fixture.movies[0].backdrop), await readFile(join(ROOT, fixture.movies[0].backdrop)));
   await writeFile(join(root, "AGENTS.md"), "private maintenance document");
   await writeFile(join(scratch, "outside.txt"), "outside fixture");
   server = createPreviewServer({ root, onError: () => {} });
@@ -58,6 +60,8 @@ for (const [name, mutate, error] of [
   ["非法日期", db => { db.movies[0].markedAt = "2026-02-30"; }, /markedAt/],
   ["缺少评分状态", db => { delete db.movies[0].scoreStatus; }, /scoreStatus/],
   ["越界海报路径", db => { db.movies[0].poster = "../outside.jpg"; }, /poster/],
+  ["越界剧照路径", db => { db.movies[0].backdrop = "assets/backdrops/../outside.jpg"; }, /backdrop/],
+  ["非法剧照裁切位置", db => { db.movies[0].backdropPosition = "101% 50%"; }, /backdropPosition/],
   ["缺少片名", db => { db.movies[0].title = ""; }, /title/],
 ]) {
   test("校验拒绝" + name, () => {
@@ -70,6 +74,23 @@ test("未评分接受 null，真实评分接受 0", () => {
   validateMovieData(db);
   db.movies[0].scoreStatus = "rated"; db.movies[0].myScore = 0;
   validateMovieData(db);
+});
+test("剧照可选，缺失的剧照文件阻止发布", async () => {
+  const db = clone(fixture);
+  delete db.movies[0].backdrop;
+  delete db.movies[0].backdropPosition;
+  delete db.movies[0].backdropPositionMobile;
+  await loadMovieData(root, "window.LMDB=" + JSON.stringify(db));
+  db.movies[0].backdrop = "assets/backdrops/missing.jpg";
+  await assert.rejects(loadMovieData(root, "window.LMDB=" + JSON.stringify(db)), /文件不存在/);
+});
+test("本地服务提供剧照，仍拒绝素材归档路径", async () => {
+  if (fixture.movies[0].backdrop) {
+    const response = await fetch(base + "/" + fixture.movies[0].backdrop);
+    assert.equal(response.status, 200);
+    assert.deepEqual(Buffer.from(await response.arrayBuffer()), await readFile(join(ROOT, fixture.movies[0].backdrop)));
+  }
+  assert.equal((await fetch(base + "/assets/backdrops/_originals/test.jpg")).status, 404);
 });
 test("缺失海报与错误 JS 语法有明确错误", async () => {
   const db = clone(fixture); db.movies[0].poster = "assets/posters/missing.jpg";

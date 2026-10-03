@@ -7,6 +7,8 @@ import { runInNewContext } from "node:vm";
 
 export const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 export const POSTER_PATH = /^assets\/posters\/[a-z0-9][a-z0-9._-]*\.(?:jpg|jpeg|png|webp|svg)$/i;
+export const BACKDROP_PATH = /^assets\/backdrops\/[a-z0-9][a-z0-9._-]*\.(?:jpg|jpeg|png|webp)$/i;
+const IMAGE_POSITION = /^(?:100|[0-9]{1,2})(?:\.\d+)?% (?:100|[0-9]{1,2})(?:\.\d+)?%$/;
 const ID = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const SCORE_STATUSES = new Set(["rated", "placeholder", "unrated"]);
 const isObject = value => value !== null && typeof value === "object" && !Array.isArray(value);
@@ -66,6 +68,10 @@ export function validateMovieData(db) {
     if (typeof movie.poster !== "string" || !POSTER_PATH.test(movie.poster)) errors.push(name + " poster 须指向 assets/posters/ 内的图片文件");
     if (movie.posterPreview !== undefined && (typeof movie.posterPreview !== "string" || !POSTER_PATH.test(movie.posterPreview))) errors.push(name + " posterPreview 须指向 assets/posters/ 内的图片文件");
     if (movie.posterThumb !== undefined && (typeof movie.posterThumb !== "string" || !POSTER_PATH.test(movie.posterThumb))) errors.push(name + " posterThumb 须指向 assets/posters/ 内的图片文件");
+    if (movie.backdrop !== undefined && (typeof movie.backdrop !== "string" || !BACKDROP_PATH.test(movie.backdrop))) errors.push(name + " backdrop 须指向 assets/backdrops/ 内的图片文件");
+    for (const field of ["backdropPosition", "backdropPositionMobile"]) {
+      if (movie[field] !== undefined && (!movie.backdrop || typeof movie[field] !== "string" || !IMAGE_POSITION.test(movie[field]) || movie[field].split(" ").some(value => parseFloat(value) > 100))) errors.push(name + " " + field + " 须为剧照的两个 0–100% 百分比");
+    }
   });
   if (errors.length) throw new Error("数据校验失败：\n- " + errors.join("\n- "));
   return db;
@@ -80,11 +86,11 @@ export async function loadMovieData(root = ROOT, source) {
   }
   const db = validateMovieData(context.window.LMDB);
   const realRoot = await realpath(root);
-  const images = db.movies.flatMap(movie => [movie.poster, movie.posterPreview, movie.posterThumb].filter(Boolean).map(poster => ({ title: movie.title, poster })));
+  const images = db.movies.flatMap(movie => [movie.poster, movie.posterPreview, movie.posterThumb, movie.backdrop].filter(Boolean).map(poster => ({ title: movie.title, poster, pattern: poster === movie.backdrop ? BACKDROP_PATH : POSTER_PATH })));
   const errors = (await Promise.all(images.map(async movie => {
     try {
       const file = await realpath(resolve(root, movie.poster));
-      if (!insideRoot(realRoot, file) || !POSTER_PATH.test(relative(realRoot, file).split(sep).join("/")) || !(await stat(file)).isFile()) {
+      if (!insideRoot(realRoot, file) || !movie.pattern.test(relative(realRoot, file).split(sep).join("/")) || !(await stat(file)).isFile()) {
         return movie.title + " 海报不在允许的素材目录内：" + movie.poster;
       }
     } catch {

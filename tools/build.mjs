@@ -11,7 +11,7 @@ export async function build(root = ROOT) {
   const files = [...new Set([
     "index.html", "data.js", "assets/css/lmdb.css", "assets/js/lmdb.js",
     "assets/favicon.svg", "assets/logo.png", "assets/logo-display.png",
-    ...db.movies.flatMap(m => [m.poster, m.posterPreview, m.posterThumb].filter(Boolean)),
+    ...db.movies.flatMap(m => [m.poster, m.posterPreview, m.posterThumb, m.backdrop].filter(Boolean)),
   ])];
   const sources = await Promise.all(files.map(async file => {
     const source = await realpath(resolve(base, file));

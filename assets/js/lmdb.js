@@ -138,19 +138,110 @@
 
   var SOURCE_LABEL = { chart: "排行榜", wall: "海报墙", hero: "排行榜" };
 
+  function backdropHTML(m, className) {
+    if (!m.backdrop) return '';
+    return '<div class="' + className + '" aria-hidden="true" style="--backdrop-position:' + esc(m.backdropPosition || '50% 50%') + ';--backdrop-position-mobile:' + esc(m.backdropPositionMobile || m.backdropPosition || '50% 50%') + '">' +
+      '<img data-backdrop src="' + esc(m.backdrop) + '" alt="" width="1920" height="1080" fetchpriority="high" decoding="async"></div>';
+  }
+
+  function watchBackdrop(host) {
+    var image = host.querySelector('[data-backdrop]');
+    if (!image) return;
+    var hideBackdrop = function () {
+      image.closest('section').classList.remove('has-backdrop');
+      image.parentElement.hidden = true;
+    };
+    image.addEventListener('error', hideBackdrop, { once: true });
+    if (image.complete && !image.naturalWidth) hideBackdrop();
+  }
+
   /* ── 首屏精选 ─────────────────────────────────────────────────────── */
+
+  var firstHero = ratedMovies[0] || MOVIES[0];
+  var heroMovies = firstHero ? [firstHero].concat(MOVIES.filter(function (m) { return m.id !== firstHero.id; })) : [];
+  var heroIndex = 0, heroTimer = null, heroRequest = 0;
+  var heroPaused = false, heroHovered = false, heroFocused = false, heroVisible = false;
+
+  function syncHeroTimer() {
+    window.clearTimeout(heroTimer);
+    ++heroRequest; // Cancel a pending image decode when focus, visibility or route changes.
+    var host = $('#hero');
+    if (!host) return;
+    var toggle = host.querySelector('[data-hero-action="pause"]');
+    if (toggle) {
+      toggle.textContent = heroPaused ? '播放' : '暂停';
+      toggle.setAttribute('aria-label', heroPaused ? '播放自动轮播' : '暂停自动轮播');
+      toggle.hidden = motionPreference.matches;
+    }
+    var running = heroMovies.length > 1 && !heroPaused && !heroHovered && !heroFocused && !host.contains(document.activeElement) && heroVisible && !document.hidden && state.route.name === 'home' && !motionPreference.matches;
+    var slide = host.querySelector('.hero__slide');
+    if (slide) slide.setAttribute('aria-live', running ? 'off' : 'polite');
+    if (running) heroTimer = window.setTimeout(function () { changeHero(1); }, 6000);
+  }
+
+  function changeHero(step) {
+    if (heroMovies.length < 2) return;
+    window.clearTimeout(heroTimer);
+    var index = (heroIndex + step + heroMovies.length) % heroMovies.length;
+    var request = ++heroRequest;
+    var ready = Promise.resolve();
+    if (heroMovies[index].backdrop) {
+      var image = new Image();
+      image.src = heroMovies[index].backdrop;
+      // Keep the current slide visible until the next still is decoded.
+      ready = image.decode().catch(function () {});
+    }
+    ready.then(function () {
+      if (request !== heroRequest) return;
+      if ($('#hero').contains(document.activeElement)) { syncHeroTimer(); return; }
+      heroIndex = index;
+      renderHero();
+      syncHeroTimer();
+    });
+  }
+
+  function initHeroCarousel() {
+    var host = $('#hero');
+    host.addEventListener('click', function (e) {
+      if (!e.target.closest('[data-hero-action="pause"]')) return;
+      heroPaused = !heroPaused;
+      syncHeroTimer();
+    });
+    host.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') { heroHovered = true; syncHeroTimer(); } });
+    host.addEventListener('pointerleave', function (e) { if (e.pointerType === 'mouse') { heroHovered = false; syncHeroTimer(); } });
+    host.addEventListener('focusin', function () { heroFocused = true; syncHeroTimer(); });
+    host.addEventListener('focusout', function (e) { heroFocused = host.contains(e.relatedTarget); syncHeroTimer(); });
+    new IntersectionObserver(function (entries) {
+      heroVisible = entries[0].isIntersecting && entries[0].intersectionRatio >= .3;
+      syncHeroTimer();
+    }, { threshold:[0,.3] }).observe(host);
+    document.addEventListener('visibilitychange', syncHeroTimer);
+    motionPreference.addEventListener('change', syncHeroTimer);
+  }
 
   function renderHero() {
     var host = $("#hero");
     if (!host || !byScore.length) return;
-    var m = ratedMovies[0] || MOVIES[0];
+    var m = heroMovies[heroIndex];
     var rated = isRated(m);
-    host.setAttribute("aria-label", rated ? "榜首电影" : "收藏影片");
-    host.innerHTML =
-      '<div class="hero__grid">' +
+    host.setAttribute("aria-label", "收藏影片轮播");
+    host.setAttribute('aria-roledescription', '轮播');
+    if (!host.querySelector('.hero__slide')) {
+      host.innerHTML = '<div class="hero__slide" aria-atomic="true"></div>' +
+        (heroMovies.length > 1 ? '<div class="hero__controls">' +
+          '<button type="button" data-hero-action="pause" aria-label="暂停自动轮播">暂停</button></div>' : '');
+    }
+    var slide = host.querySelector('.hero__slide');
+    slide.setAttribute('role', 'group');
+    slide.setAttribute('aria-roledescription', '幻灯片');
+    slide.setAttribute('aria-label', (heroIndex + 1) + ' / ' + heroMovies.length + '：' + m.title);
+    host.classList.toggle("has-backdrop", Boolean(m.backdrop));
+    slide.innerHTML =
+      backdropHTML(m, 'hero__backdrop') +
+      '<div class="hero__inner">' +
         '<div class="hero__text">' +
           '<div class="hero__heading">' +
-            '<p class="hero__eyebrow">' + (rated ? '我的第 1 名' : '影片收藏') + '</p>' +
+            '<p class="hero__eyebrow">' + (rated ? '我的第 ' + rankOf[m.id] + ' 名' : '影片收藏') + '</p>' +
             '<h1 class="hero__title">' + esc(m.title) + '</h1>' +
             '<p class="hero__title-en">' + esc(subtitleOf(m)) + '</p>' +
           '</div>' +
@@ -158,18 +249,19 @@
             '<p class="hero__meta">' + esc(m.year) + ' / ' + esc(m.director) + ' / ' + runtimeText(m.runtime) + '</p>' +
             '<p class="hero__summary">' + esc(m.tagline || m.summary) + '</p>' +
           '</div>' +
-          '<div class="hero__scores">' + externalRatings(m, false) +
-            '<span class="hero__personal"><span>个人评分</span><b>' + scoreText(m) + '</b></span>' +
-          '</div>' +
           '<div class="hero__cta">' +
             '<a class="btn btn--accent" href="#/film/' + esc(m.id) + '">查看详情<span aria-hidden="true">↗</span></a>' +
-            '<a class="btn btn--ghost" href="#wall">海报墙<span aria-hidden="true">↗</span></a>' +
+            '<a class="hero__collection-link" href="#wall">浏览海报墙<span aria-hidden="true">↗</span></a>' +
           '</div>' +
         '</div>' +
-        '<figure class="hero__poster">' +
-          '<img src="' + esc(m.poster) + '"' + posterAttrs(m, "(max-width: 700px) 112px, 252px") + ' alt="' + esc(m.title) + ' 海报" width="1080" height="1620" fetchpriority="high">' +
-        '</figure>' +
+        '<div class="hero__scores">' + externalRatings(m, false) +
+          '<span class="hero__personal"><span>个人评分</span><b>' + scoreText(m) + '</b></span>' +
+        '</div>' +
       '</div>';
+    watchBackdrop(host);
+    slide.classList.remove('hero__slide--enter');
+    void slide.offsetWidth;
+    if (!motionPreference.matches) slide.classList.add('hero__slide--enter');
   }
 
   /* ── 排行榜 ───────────────────────────────────────────────────────── */
@@ -315,7 +407,9 @@
       '</div>' +
 
       /* 主视觉 */
-      '<section class="detail__hero">' +
+      '<div class="detail__stage">' +
+      '<section class="detail__hero' + (m.backdrop ? ' has-backdrop' : '') + '">' +
+        backdropHTML(m, 'detail__backdrop') +
         '<div class="detail__hero-inner">' +
           '<figure class="detail__poster">' +
             '<img src="' + esc(m.poster) + '"' + posterAttrs(m, "(max-width: 700px) 96px, 244px") + ' alt="' + esc(m.title) + ' 海报" width="1080" height="1620">' +
@@ -346,7 +440,7 @@
             (m.doubanNote ? '<p class="ratings-note">' + esc(m.doubanNote) + '</p>' : '') +
           '</div>' +
         '</div>' +
-      '</section>' +
+      '</section></div>' +
 
       /* 正文 + 侧栏 */
       '<div class="detail__content">' +
@@ -460,6 +554,7 @@
       }
     }
     syncNavHighlight();
+    syncHeroTimer();
     var destination = opts.anchor && document.getElementById(opts.anchor);
     enterRegions(destination ? [destination] : wasDetail ? Array.from(viewHome.children) : [], wasDetail ? "return" : "");
   }
@@ -489,8 +584,10 @@
     viewHome.hidden = true;
 
     viewDetail.innerHTML = detailHTML(m);
+    watchBackdrop(viewDetail);
     viewDetail.hidden = false;
     viewDetail.classList.add("is-active");
+    measureAppBar();
 
     scrollInstantly(0);
 
@@ -504,11 +601,14 @@
     }
     state.route = { name: "detail", id: id };
     syncNavHighlight();
+    syncHeroTimer();
     var direction = previousId
       ? (byScore.indexOf(m) < byScore.indexOf(findMovie(previousId)) ? "prev" : "next")
       : "";
     enterRegions(Array.from(viewDetail.children).filter(function (region) {
       return !region.classList.contains("detail__bar");
+    }).map(function (region) {
+      return region.classList.contains("detail__stage") ? region.querySelector('.detail__hero') : region;
     }), direction);
   }
 
@@ -597,7 +697,7 @@
       return;
     }
     // 记录进入详情的来源板块，让返回文案、面包屑与导航高亮保持一致
-    var link = e.target.closest(".chart__link, .card__link");
+    var link = e.target.closest(".chart__link, .card__link, .hero__cta a[href^='#/film/']");
     if (link) {
       state.detailSource = link.classList.contains("card__link") ? "wall" : "chart";
     }
@@ -643,6 +743,7 @@
   function init() {
     document.body.classList.toggle("has-personal-ranks", ratedMovies.length > 0);
     renderHero();
+    initHeroCarousel();
     renderChart();
     renderChips();
     renderWall();

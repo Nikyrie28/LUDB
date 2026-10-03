@@ -4,7 +4,7 @@ import { createServer } from "node:http";
 import { readFile, realpath, stat } from "node:fs/promises";
 import { extname, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
-import { ROOT, POSTER_PATH, insideRoot, loadMovieData } from "./validate-data.mjs";
+import { ROOT, POSTER_PATH, BACKDROP_PATH, insideRoot, loadMovieData } from "./validate-data.mjs";
 
 const PORT = Number(process.env.PORT) || 8765;
 const PUBLIC_FILES = new Set(["/index.html", "/data.js", "/assets/css/lmdb.css", "/assets/js/lmdb.js", "/assets/favicon.svg", "/assets/logo.png", "/assets/logo-display.png"]);
@@ -13,7 +13,7 @@ const TYPES = {
   ".js": "text/javascript; charset=utf-8", ".svg": "image/svg+xml",
   ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp",
 };
-const isPublic = path => PUBLIC_FILES.has(path) || (path.startsWith("/") && POSTER_PATH.test(path.slice(1)));
+const isPublic = path => PUBLIC_FILES.has(path) || (path.startsWith("/") && (POSTER_PATH.test(path.slice(1)) || BACKDROP_PATH.test(path.slice(1))));
 
 export function createPreviewServer({ root = ROOT, onError = console.error } = {}) {
   const rootPath = resolve(root);

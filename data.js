@@ -48,6 +48,9 @@ window.LMDB = {
       poster: "assets/posters/shoplifters.jpg",
       posterPreview: "assets/posters/shoplifters-display.jpg",
       posterThumb: "assets/posters/shoplifters-thumb.jpg",
+      backdrop: "assets/backdrops/shoplifters.jpg",
+      backdropPosition: "50% 60%",
+      backdropPositionMobile: "50% 60%",
       tagline: "我们选择成为一家人。",
       summary:
         "东京下町的一间老旧平房里，靠偷窃和零工拼凑生活的一家人。一个冬夜，他们收留了在公寓走廊里冻着的小女孩，这个由选择组成的家庭开始出现裂缝。",
@@ -74,6 +77,8 @@ window.LMDB = {
       poster: "assets/posters/umimachi.jpg",
       posterPreview: "assets/posters/umimachi-display.jpg",
       posterThumb: "assets/posters/umimachi-thumb.jpg",
+      backdrop: "assets/backdrops/umimachi.jpg",
+      backdropPosition: "50% 40%",
       tagline: "梅酒熟了，四季也走完了。",
       summary:
         "镰仓的老宅、四姐妹和一坛梅酒。父亲葬礼之后，长女把同父异母的妹妹接回了家，四季轮转里，被留下的伤口一点点被日常填平。",
@@ -100,6 +105,8 @@ window.LMDB = {
       poster: "assets/posters/aruitemo.jpg",
       posterPreview: "assets/posters/aruitemo-display.jpg",
       posterThumb: "assets/posters/aruitemo-thumb.jpg",
+      backdrop: "assets/backdrops/aruitemo.jpg",
+      backdropPosition: "50% 40%",
       tagline: "人生总是慢半拍。",
       summary:
         "长子忌日，一家人回到海边小镇的老家。母亲在厨房里炸玉米天妇罗，父亲沉默着待在诊室，次子带着再婚的妻子和孩子走进了那间一直没变过的厨房。",
@@ -126,6 +133,9 @@ window.LMDB = {
       poster: "assets/posters/kiseki.jpg",
       posterPreview: "assets/posters/kiseki-display.jpg",
       posterThumb: "assets/posters/kiseki-thumb.jpg",
+      backdrop: "assets/backdrops/kiseki.jpg",
+      backdropPosition: "50% 45%",
+      backdropPositionMobile: "50% 45%",
       tagline: "许愿的那一刻，就是奇迹。",
       summary:
         "父母分开后，兄弟俩一个跟着妈妈去了鹿儿岛，一个跟着爸爸留在福冈。新干线的第一次交汇被传说成许愿会实现的一刻，两群孩子各自带着愿望出发。",
@@ -152,6 +162,9 @@ window.LMDB = {
       poster: "assets/posters/interstellar.jpg",
       posterPreview: "assets/posters/interstellar-display.jpg",
       posterThumb: "assets/posters/interstellar-thumb.jpg",
+      backdrop: "assets/backdrops/interstellar.jpg",
+      backdropPosition: "50% 65%",
+      backdropPositionMobile: "65% 65%",
       tagline: "一小时，七年。",
       summary:
         "沙尘暴正在吞掉地球。前宇航员穿过土星旁的虫洞去找宜居星球，而在另一颗星球上，一小时等于地球上的七年。",
@@ -178,6 +191,8 @@ window.LMDB = {
       poster: "assets/posters/oppenheimer.jpg",
       posterPreview: "assets/posters/oppenheimer-display.jpg",
       posterThumb: "assets/posters/oppenheimer-thumb.jpg",
+      backdrop: "assets/backdrops/oppenheimer.jpg",
+      backdropPosition: "50% 40%",
       tagline: "沙漠里的那道光。",
       summary:
         "洛斯阿拉莫斯实验室里，他把人类第一次核爆点亮在新墨西哥的沙漠上。战后的听证会里，同一个人被一点点拆开。",
@@ -204,6 +219,8 @@ window.LMDB = {
       poster: "assets/posters/inception.jpg",
       posterPreview: "assets/posters/inception-display.jpg",
       posterThumb: "assets/posters/inception-thumb.jpg",
+      backdrop: "assets/backdrops/inception.jpg",
+      backdropPosition: "50% 40%",
       tagline: "一颗念头的重量。",
       summary:
         "潜入他人梦境窃取秘密的团队，接下了一个相反的任务：往目标的潜意识里种下一个念头。梦一层层往下，回程却越来越难。",
@@ -230,6 +247,8 @@ window.LMDB = {
       poster: "assets/posters/blade-runner-2049.jpg",
       posterPreview: "assets/posters/blade-runner-2049-display.jpg",
       posterThumb: "assets/posters/blade-runner-2049-thumb.jpg",
+      backdrop: "assets/backdrops/blade-runner-2049.jpg",
+      backdropPosition: "50% 40%",
       tagline: "记忆是真的，就无所谓真假。",
       summary:
         "近未来洛杉矶，银翼杀手K在一次例行清剿中挖出一具遗骸，牵出复制人曾自然生育的秘密。为了销毁证据，他去找失踪三十年的前银翼杀手迪卡德，却在追查中开始怀疑，自己脑中的童年记忆或许并不是被植入的。",
@@ -256,6 +275,9 @@ window.LMDB = {
       poster: "assets/posters/look-back.jpg",
       posterPreview: "assets/posters/look-back-display.jpg",
       posterThumb: "assets/posters/look-back-thumb.jpg",
+      backdrop: "assets/backdrops/look-back.jpg",
+      backdropPosition: "50% 45%",
+      backdropPositionMobile: "50% 45%",
       tagline: "为什么要画画呢。",
       summary:
         "改编自藤本树同名短篇：在小镇校报上画四格漫画的藤野，被请长假宅家画画的同学京子追上，从此较着劲一路画下去。两人一起画画、一起长大的时光，在一场变故之后，成了藤野回望来路的支点。",
@@ -285,6 +307,9 @@ window.LMDB = {
       poster: "assets/posters/love-letter-cn-2021.jpg",
       posterPreview: "assets/posters/love-letter-cn-2021-display.jpg",
       posterThumb: "assets/posters/love-letter-cn-2021-thumb.jpg",
+      backdrop: "assets/backdrops/love-letter.jpg",
+      backdropPosition: "50% 35%",
+      backdropPositionMobile: "28% 35%",
       tagline: "一封信，寄回了未曾说出口的青春。",
       summary:
         "未婚夫藤井树因山难去世后，渡边博子向他少年时住过的小樽地址寄出一封信，意外收到了另一位同名女子的回信。两人的书信往来，让一段藏在校园与旧书里的少年心事逐渐浮现。",
@@ -312,6 +337,8 @@ window.LMDB = {
       poster: "assets/posters/hana-and-alice-jp.jpg",
       posterPreview: "assets/posters/hana-and-alice-jp-display.jpg",
       posterThumb: "assets/posters/hana-and-alice-jp-thumb.jpg",
+      backdrop: "assets/backdrops/hana-and-alice.jpg",
+      backdropPosition: "50% 40%",
       tagline: "谎言绕了一圈，友情还在。",
       summary:
         "从小一起长大的花与爱丽丝升入高中。花暗恋的学长宫本意外撞到头，她趁机谎称两人早已交往；为了圆谎，爱丽丝也被拉进这场假装失忆的恋爱，三个人的关系渐渐变得微妙。",
@@ -340,6 +367,8 @@ window.LMDB = {
       poster: "assets/posters/april-story-jp.jpg",
       posterPreview: "assets/posters/april-story-jp-display.jpg",
       posterThumb: "assets/posters/april-story-jp-thumb.jpg",
+      backdrop: "assets/backdrops/april-story.jpg",
+      backdropPosition: "50% 40%",
       tagline: "为了一个人，来到一座城。",
       summary:
         "四月，北海道女孩榆野卯月独自来到东京，开始大学生活。在搬家、结识邻居与同学的日常里，她反复走进一间书店；她选择这所大学的秘密，也藏在店里那位曾让她心动的学长身上。",
