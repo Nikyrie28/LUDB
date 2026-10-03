@@ -160,20 +160,14 @@
   var firstHero = ratedMovies[0] || MOVIES[0];
   var heroMovies = firstHero ? [firstHero].concat(MOVIES.filter(function (m) { return m.id !== firstHero.id; })) : [];
   var heroIndex = 0, heroTimer = null, heroRequest = 0;
-  var heroPaused = false, heroHovered = false, heroFocused = false, heroVisible = false;
+  var heroHovered = false, heroFocused = false, heroVisible = false;
 
   function syncHeroTimer() {
     window.clearTimeout(heroTimer);
     ++heroRequest; // Cancel a pending image decode when focus, visibility or route changes.
     var host = $('#hero');
     if (!host) return;
-    var toggle = host.querySelector('[data-hero-action="pause"]');
-    if (toggle) {
-      toggle.textContent = heroPaused ? '播放' : '暂停';
-      toggle.setAttribute('aria-label', heroPaused ? '播放自动轮播' : '暂停自动轮播');
-      toggle.hidden = motionPreference.matches;
-    }
-    var running = heroMovies.length > 1 && !heroPaused && !heroHovered && !heroFocused && !host.contains(document.activeElement) && heroVisible && !document.hidden && state.route.name === 'home' && !motionPreference.matches;
+    var running = heroMovies.length > 1 && !heroHovered && !heroFocused && !host.contains(document.activeElement) && heroVisible && !document.hidden && state.route.name === 'home' && !motionPreference.matches;
     var slide = host.querySelector('.hero__slide');
     if (slide) slide.setAttribute('aria-live', running ? 'off' : 'polite');
     if (running) heroTimer = window.setTimeout(function () { changeHero(1); }, 6000);
@@ -202,11 +196,6 @@
 
   function initHeroCarousel() {
     var host = $('#hero');
-    host.addEventListener('click', function (e) {
-      if (!e.target.closest('[data-hero-action="pause"]')) return;
-      heroPaused = !heroPaused;
-      syncHeroTimer();
-    });
     host.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') { heroHovered = true; syncHeroTimer(); } });
     host.addEventListener('pointerleave', function (e) { if (e.pointerType === 'mouse') { heroHovered = false; syncHeroTimer(); } });
     host.addEventListener('focusin', function () { heroFocused = true; syncHeroTimer(); });
@@ -227,9 +216,7 @@
     host.setAttribute("aria-label", "收藏影片轮播");
     host.setAttribute('aria-roledescription', '轮播');
     if (!host.querySelector('.hero__slide')) {
-      host.innerHTML = '<div class="hero__slide" aria-atomic="true"></div>' +
-        (heroMovies.length > 1 ? '<div class="hero__controls">' +
-          '<button type="button" data-hero-action="pause" aria-label="暂停自动轮播">暂停</button></div>' : '');
+      host.innerHTML = '<div class="hero__slide" aria-atomic="true"></div>';
     }
     var slide = host.querySelector('.hero__slide');
     slide.setAttribute('role', 'group');
@@ -246,12 +233,7 @@
             '<p class="hero__title-en">' + esc(subtitleOf(m)) + '</p>' +
           '</div>' +
           '<div class="hero__description">' +
-            '<p class="hero__meta">' + esc(m.year) + ' / ' + esc(m.director) + ' / ' + runtimeText(m.runtime) + '</p>' +
-            '<p class="hero__summary">' + esc(m.tagline || m.summary) + '</p>' +
-          '</div>' +
-          '<div class="hero__cta">' +
-            '<a class="btn btn--accent" href="#/film/' + esc(m.id) + '">查看详情<span aria-hidden="true">↗</span></a>' +
-            '<a class="hero__collection-link" href="#wall">浏览海报墙<span aria-hidden="true">↗</span></a>' +
+            '<p class="hero__summary">' + esc(m.summary || m.tagline) + '</p>' +
           '</div>' +
         '</div>' +
         '<div class="hero__scores">' + externalRatings(m, false) +
@@ -697,7 +679,7 @@
       return;
     }
     // 记录进入详情的来源板块，让返回文案、面包屑与导航高亮保持一致
-    var link = e.target.closest(".chart__link, .card__link, .hero__cta a[href^='#/film/']");
+    var link = e.target.closest(".chart__link, .card__link");
     if (link) {
       state.detailSource = link.classList.contains("card__link") ? "wall" : "chart";
     }

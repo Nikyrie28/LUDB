@@ -85,7 +85,7 @@ const home = JSON.parse(await ev(`JSON.stringify({
   heroTitle: document.querySelector(".hero__title")?.textContent,
   heroBackdrop: document.querySelector(".hero__backdrop img")?.getAttribute("src"),
   heroBackdropLoaded: !!document.querySelector(".hero__backdrop img")?.naturalWidth,
-  heroLink: document.querySelector(".hero__cta .btn")?.getAttribute("href"),
+  heroExtras: !!document.querySelector(".hero__meta,.hero__cta,.hero__collection-link"),
   heroEyebrow: document.querySelector(".hero__eyebrow")?.textContent,
   rankedCards: document.querySelectorAll(".card__rank").length,
   pendingScores: document.querySelectorAll(".card__score.is-pending").length,
@@ -97,7 +97,7 @@ check(`排行榜 ${N_MOVIES} 行`, home.rows === N_MOVIES, "rows=" + home.rows);
 check(`海报墙 ${N_MOVIES} 张`, home.cards === N_MOVIES, "cards=" + home.cards);
 check("首屏影片与数据一致", home.heroTitle === expectedHero?.title, home.heroTitle);
 check("首屏横幅与影片对应且加载成功", expectedHero?.backdrop ? home.heroBackdrop === expectedHero.backdrop && home.heroBackdropLoaded : !home.heroBackdrop, home.heroBackdrop);
-check("首屏详情入口与影片对应", home.heroLink === '#/film/' + expectedHero.id, home.heroLink);
+check("首屏不显示元信息行及操作入口", !home.heroExtras);
 check("首屏只对真实评分显示榜首", home.heroEyebrow === (rated.length ? "我的第 1 名" : "影片收藏"), home.heroEyebrow);
 check("只有真实评分影片显示名次", home.rankedCards === rated.length, "ranked=" + home.rankedCards);
 check("占位及未评分影片显示待评", home.pendingScores === N_MOVIES - rated.length, "pending=" + home.pendingScores);
@@ -203,23 +203,24 @@ for (const width of [1440, 390]) {
 for (const width of [1440, 768, 390]) {
   await send("Emulation.setDeviceMetricsOverride", { width, height:900, deviceScaleFactor:1, mobile:width===390 });
   await send("Page.navigate", {url:BASE}); await sleep(450);
+  const collectionLink = '#chartList a[href="#/film/' + expectedHero.id + '"]';
   const heroLayout = await ev(`(() => {
     const host=document.querySelector('#hero').getBoundingClientRect();
-    const button=document.querySelector('.hero__cta .btn').getBoundingClientRect();
+    const summary=document.querySelector('.hero__summary').getBoundingClientRect();
     const image=document.querySelector('.hero__backdrop img');
     const ratings=document.querySelector('.hero__scores').getBoundingClientRect();
-    return host.width===innerWidth && (!image || image.naturalWidth>0) && button.top>=0 && button.bottom<=innerHeight && ratings.right<=innerWidth && document.documentElement.scrollWidth<=innerWidth;
+    return host.width===innerWidth && (!image || image.naturalWidth>0) && summary.top>=0 && summary.bottom<=innerHeight && ratings.right<=innerWidth && document.documentElement.scrollWidth<=innerWidth && !document.querySelector('.hero__meta,.hero__cta,.hero__collection-link');
   })()`);
-  check(`${width}px 首页横幅铺满宽度、入口首屏可见且无溢出`, heroLayout);
-  await ev(`document.querySelector('.hero__cta .btn').click()`); await sleep(300);
-  check(`${width}px 首页入口打开对应详情`, await ev(`document.querySelector('.detail__title').textContent===${JSON.stringify(expectedHero.title)} && !document.querySelector('#viewDetail').hidden`));
+  check(`${width}px 首页简介首屏可见、指定组件已移除且无溢出`, heroLayout);
+  await ev(`document.querySelector(${JSON.stringify(collectionLink)}).click()`); await sleep(300);
+  check(`${width}px 排行榜入口仍打开对应详情`, await ev(`document.querySelector('.detail__title').textContent===${JSON.stringify(expectedHero.title)} && !document.querySelector('#viewDetail').hidden`));
   await ev(`document.querySelector('.detail__back').click()`); await sleep(300);
   check(`${width}px 详情返回首页恢复原位置`, await ev(`!document.querySelector('#viewHome').hidden && scrollY===0`));
   // Invalid image bytes exercise the real decode/error path without an external request.
   if (expectedHero.backdrop) {
     await ev(`document.querySelector('.hero__backdrop img').src='data:image/jpeg;base64,AA=='`); await sleep(100);
-    check(`${width}px 首页剧照损坏时保留标题和入口`, await ev(`!document.querySelector('#hero').classList.contains('has-backdrop') && document.querySelector('.hero__backdrop').hidden && document.querySelector('.hero__cta .btn').getBoundingClientRect().height>=44`));
-    await ev(`document.querySelector('.hero__cta .btn').click()`); await sleep(300);
+    check(`${width}px 首页剧照损坏时保留标题和简介`, await ev(`!document.querySelector('#hero').classList.contains('has-backdrop') && document.querySelector('.hero__backdrop').hidden && document.querySelector('.hero__title').textContent===${JSON.stringify(expectedHero.title)} && document.querySelector('.hero__summary').textContent===${JSON.stringify(expectedHero.summary)}`));
+    await ev(`document.querySelector(${JSON.stringify(collectionLink)}).click()`); await sleep(300);
     await ev(`document.querySelector('.detail__backdrop img').src='data:image/jpeg;base64,AA=='`); await sleep(100);
     check(`${width}px 详情剧照损坏时恢复紧凑布局`, await ev(`!document.querySelector('.detail__hero').classList.contains('has-backdrop') && document.querySelector('.detail__backdrop').hidden && document.querySelector('.detail__title').getBoundingClientRect().top<300`));
   }
@@ -310,21 +311,22 @@ for (const width of [1440,390]) {
   await send("Emulation.setDeviceMetricsOverride", {width,height:900,deviceScaleFactor:1,mobile:width===390});
   await send("Emulation.setEmulatedMedia", {features:[{name:"prefers-reduced-motion",value:"no-preference"}]});
   await send("Page.navigate", {url:BASE}); await sleep(400);
-  check(`${width}px 不提供手动选片按钮`, await ev(`!document.querySelector('[data-hero-action="prev"],[data-hero-action="next"],.hero__position')`));
+  check(`${width}px 不显示轮播序号或操作控件`, await ev(`!document.querySelector('.hero__controls,.hero__counter,[data-hero-action],.hero__position')`));
   await sleep(6200);
   const second= db.movies.find(m => m.id !== expectedHero.id);
-  const carousel=JSON.parse(await ev(`JSON.stringify({title:document.querySelector('.hero__title').textContent,backdrop:document.querySelector('.hero__backdrop img').getAttribute('src'),link:document.querySelector('.hero__cta .btn').getAttribute('href'),loaded:document.querySelector('.hero__backdrop img').naturalWidth>0,overflow:document.documentElement.scrollWidth>innerWidth})`));
-  check(`${width}px 自动换片后标题、剧照和入口同步`,carousel.title===second.title&&carousel.backdrop===second.backdrop&&carousel.link==='#/film/'+second.id&&carousel.loaded&&!carousel.overflow,carousel.title);
+  const carousel=JSON.parse(await ev(`JSON.stringify({title:document.querySelector('.hero__title').textContent,backdrop:document.querySelector('.hero__backdrop img').getAttribute('src'),summary:document.querySelector('.hero__summary').textContent,loaded:document.querySelector('.hero__backdrop img').naturalWidth>0,overflow:document.documentElement.scrollWidth>innerWidth})`));
+  check(`${width}px 自动换片后标题、剧照和简介同步`,carousel.title===second.title&&carousel.backdrop===second.backdrop&&carousel.summary===second.summary&&carousel.loaded&&!carousel.overflow,carousel.title);
   if (width===1440) await ev(`document.querySelector('#hero').dispatchEvent(new PointerEvent('pointerenter',{pointerType:'mouse'}))`);
-  else await ev(`document.querySelector('.hero__cta .btn').focus({preventScroll:true})`);
+  else await ev(`window.scrollTo({top:document.querySelector('#hero').getBoundingClientRect().bottom+scrollY,behavior:'instant'})`);
   await sleep(6300);
-  check(`${width}px ${width===1440?'悬停':'键盘焦点'}时暂停自动切换`,await ev(`document.querySelector('.hero__title').textContent===${JSON.stringify(second.title)}`), await ev(`document.querySelector('.hero__title').textContent+' / focus='+document.activeElement.className`));
-  await ev(`document.querySelector('.hero__cta .btn').click()`); await sleep(350);
-  check(`${width}px 轮播后详情入口仍对应当前电影`,await ev(`document.querySelector('.detail__title').textContent===${JSON.stringify(second.title)}`));
+  check(`${width}px ${width===1440?'悬停':'离开首屏'}时暂停自动切换`,await ev(`document.querySelector('.hero__title').textContent===${JSON.stringify(second.title)}`));
+  const secondLink = '#chartList a[href="#/film/' + second.id + '"]';
+  await ev(`document.querySelector(${JSON.stringify(secondLink)}).click()`); await sleep(350);
+  check(`${width}px 轮播后仍能从排行榜查看影片详情`,await ev(`document.querySelector('.detail__title').textContent===${JSON.stringify(second.title)}`));
 }
 await send("Emulation.setEmulatedMedia",{features:[{name:"prefers-reduced-motion",value:"reduce"}]});
 await send("Page.navigate",{url:BASE}); await sleep(6600);
-check('减少动态效果时不自动轮播',await ev(`document.querySelector('.hero__title').textContent===${JSON.stringify(expectedHero.title)}&&document.querySelector('[data-hero-action="pause"]').hidden&&document.getAnimations().length===0`));
+check('减少动态效果时不自动轮播',await ev(`document.querySelector('.hero__title').textContent===${JSON.stringify(expectedHero.title)}&&document.getAnimations().length===0`));
 await send("Emulation.setEmulatedMedia",{features:[]});
 
 /* 8. 控制台干净 */
